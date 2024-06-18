@@ -204,5 +204,6 @@ app.delete('/api/programming_languages/:id', async function(req, res){
 });
 
 //Not implemented 
+//PATCH is used for partial updates, meaning you only send the specific data that needs to be updated.
 //PATCH: Update Object
 //app.patch()
