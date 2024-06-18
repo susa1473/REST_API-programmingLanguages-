@@ -1,29 +1,20 @@
 const express = require('express');
-//const cors = require('cors');
 const mysql = require('mysql2');
 const Joi = require('joi');
 const port =process.env.PORT || 3000;
 
 // Create a connection to your MySQL database
 var connection = mysql.createConnection({
-    host: 'db4free.net', // replace with your host name
-    user: 'vellinge',      // replace with your MySQL username
-    password: '0LEQ&xk4&hVXyrQR',      // replace with your MySQL password
-    database: 'leqxkhvxyrqr'   // replace with your MySQL database name
+    host: 'db4free.net', 
+    user: 'vellinge',      
+    password: '0LEQ&xk4&hVXyrQR',     
+    database: 'leqxkhvxyrqr'   
   });
  
 //Create a Express instance
 const app = express();
 
-
-
-/*GET : Get object
-PUT : Modify Object
-DELETE: Delete Object
-POST : Create Object*/
-
-
-// ✅ Register the body parsing middleware here
+//Config express
 app.use(express.json())
 app.use(
     express.urlencoded({
@@ -31,19 +22,17 @@ app.use(
   }),
 );
 
-//app.use(cors());
- 
-
 app.listen(port, () => {
     console.log("Listening on port "+port);
 });
 
-//GET : Get object
+//GET : Get objects
 app.get('/', async function(req, res)
 {   console.log("GET on Server side");
     res.send("Hello from server!");    
 })
 
+//GET : Get objects
 app.get('/api/programming_languages', async function(req, res) {   
     try 
     {
@@ -66,6 +55,7 @@ app.get('/api/programming_languages', async function(req, res) {
     }   
 })
 
+//GET : Get object
 app.get('/api/programming_languages/:id', async function(req, res) {  
     try 
     {
@@ -113,6 +103,7 @@ function validateProgrammingLanguage(programming_language){
     return schema.validate({name: programming_language.name, released_year: programming_language.released_year}, { abortEarly: false });
 }
 
+//Create database string
 function CreatePostSqlString(parameter){
     let sqlstring="INSERT IGNORE INTO programming_languages(name,info, released_year,githut_rank) VALUES (";
     sqlstring+='"'+parameter.name+'"'+","+'"';
@@ -122,7 +113,7 @@ function CreatePostSqlString(parameter){
     return sqlstring;
 }
 
-//Add a programming language after validating
+//PUT : Modify Object. Add a programming language after validating
 app.post('/api/programming_languages', async function(req, res){     
     try 
     { 
@@ -148,7 +139,7 @@ app.post('/api/programming_languages', async function(req, res){
     }    
 });
 
-//PUT : Modify Object
+//Create database string
 function CreatePutSqlString(parameter){
     let sqlstring="UPDATE programming_languages set name=";
     sqlstring+='"'+parameter.name+'"'+ ",";
@@ -158,6 +149,7 @@ function CreatePutSqlString(parameter){
     return sqlstring;
 }
 
+//PUT : Modify Object
 app.put('/api/programming_languages/:id', async function(req, res){
     try 
     {
@@ -211,5 +203,6 @@ app.delete('/api/programming_languages/:id', async function(req, res){
     }    
 });
 
+//Not implemented 
 //PATCH: Update Object
 //app.patch()
