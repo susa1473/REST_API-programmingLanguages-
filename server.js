@@ -97,8 +97,7 @@ app.get('/api/programming_languages/:id', async function(req, res) {
 })
 
 //User-defined function to validate the programming language
-function validateProgrammingLanguage(programming_language){ 
-    console.log("validateProgrammingLanguage");
+function validateProgrammingLanguage(programming_language){   
     const schema = Joi.object({
         name: Joi.string().min(1).max(255).required().messages({
             'string.base': `"Name" should be a type of 'text'`,
@@ -106,7 +105,7 @@ function validateProgrammingLanguage(programming_language){
             'string.min': `"Name" should have a minimum length of {#limit}`,
             'any.required': `"Name" is a required field`
         }),
-        released_year: Joi.number().min(1990).max(2030).required().messages({            
+        released_year: Joi.number().min(1970).max(2030).required().messages({            
             'string.empty': `"Release year" cannot be an empty field`,
             'string.min': `"Release year" should have a minimum length of {#limit}`,
             'any.required': `"Release year" is a required field`
@@ -115,21 +114,12 @@ function validateProgrammingLanguage(programming_language){
     return schema.validate({name: programming_language.name, released_year: programming_language.released_year}, { abortEarly: false });
 }
 
-function CreateSqlString(parameter){
-    let sqlstring="INSERT INTO programming_languages(name,info, released_year,githut_rank) VALUES (";
-    sqlstring+='"';
-    sqlstring+=parameter.name;
-    sqlstring+='"';
-    sqlstring+=",";
-    sqlstring+='"';
-    sqlstring+=parameter.info;
-    sqlstring+='"';
-    sqlstring+=",";
-    sqlstring+=parameter.released_year;
-    sqlstring+=",";
-    sqlstring+=parameter.githut_rank;
-    sqlstring+=")";
-    //console.log(sqlstring);
+function CreatePostSqlString(parameter){
+    let sqlstring="INSERT IGNORE INTO programming_languages(name,info, released_year,githut_rank) VALUES (";
+    sqlstring+='"'+parameter.name+'"'+","+'"';
+    sqlstring+=parameter.info+'"';
+    sqlstring+=","+parameter.released_year;
+    sqlstring+=","+parameter.githut_rank+")";
     return sqlstring;
 }
 
@@ -144,7 +134,7 @@ app.post('/api/programming_languages', async function(req, res){
         }
         connection.connect(function(err) 
         {
-            connection.query(CreateSqlString(req.body), function (err, result)       
+            connection.query(CreatePostSqlString(req.body), function (err, result)       
             {
                 if (err) 
                     throw err;            
@@ -160,8 +150,48 @@ app.post('/api/programming_languages', async function(req, res){
 });
 
 //PUT : Modify Object
+
+function CreatePutSqlString(parameter){
+    let sqlstring="UPDATE programming_languages set name=";
+    sqlstring+='"'+parameter.name+'"'+ ",";
+    sqlstring+='info="'+parameter.info+'"'+",";
+    sqlstring+='released_year="'+parameter.released_year+'"'+",";    
+    sqlstring+='githut_rank="'+parameter.githut_rank+'"'+" where id=";
+    return sqlstring;
+}
+
 app.put('/api/programming_languages/:id', async function(req, res){
-    //Look up this course
+    try 
+    {
+        const {error} = validateProgrammingLanguage(req.body); 
+        if(error){
+            //400 Bad Request
+            return res.status(400).send(error.details[0].message);
+        }
+        connection.connect(function(err) 
+        {
+            if (err) 
+              throw err;
+          
+            // Query the database
+            connection.query(CreatePutSqlString(req.body)+parseInt(req.params.id), function (err, result) 
+            {
+                if (err) 
+                    throw err;
+
+                /*if(result.length === 0){
+                    //404 Not found
+                    return res.status(404).send("The programming language with the given ID was not found!");  
+                }   */       
+                res.send(result);
+            });
+         });
+    } 
+    catch (err) {
+        console.error(`Error while getting programming languages `, err.message);
+        next(err);
+    }    
+    /*//Look up this course
     const course = courses.find(c => c.id === parseInt(req.params.id));
     if(!course){
         return res.status(404).send("The course with the given ID was not found!");  
@@ -178,7 +208,8 @@ app.put('/api/programming_languages/:id', async function(req, res){
     course.name = req.body.name;
     
     // return the updated course to client
-    res.status(200).send(course);
+    res.status(200).send(course);*/
+
 });
 
 //DELETE: Delete Object
