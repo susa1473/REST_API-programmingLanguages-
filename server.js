@@ -72,8 +72,7 @@ app.get('/api/programming_languages/:id', async function(req, res) {
         connection.connect(function(err) 
         {
             if (err) 
-              throw err;
-            console.log("Connected to the database!");
+              throw err;           
           
             // Query the database
             connection.query("SELECT * FROM programming_languages where id="+parseInt(req.params.id), function (err, result) 
@@ -150,7 +149,6 @@ app.post('/api/programming_languages', async function(req, res){
 });
 
 //PUT : Modify Object
-
 function CreatePutSqlString(parameter){
     let sqlstring="UPDATE programming_languages set name=";
     sqlstring+='"'+parameter.name+'"'+ ",";
@@ -177,12 +175,7 @@ app.put('/api/programming_languages/:id', async function(req, res){
             connection.query(CreatePutSqlString(req.body)+parseInt(req.params.id), function (err, result) 
             {
                 if (err) 
-                    throw err;
-
-                /*if(result.length === 0){
-                    //404 Not found
-                    return res.status(404).send("The programming language with the given ID was not found!");  
-                }   */       
+                    throw err;                
                 res.send(result);
             });
          });
@@ -191,25 +184,6 @@ app.put('/api/programming_languages/:id', async function(req, res){
         console.error(`Error while getting programming languages `, err.message);
         next(err);
     }    
-    /*//Look up this course
-    const course = courses.find(c => c.id === parseInt(req.params.id));
-    if(!course){
-        return res.status(404).send("The course with the given ID was not found!");  
-    }  
-    
-    //Validate
-    const {error} = validateCourse(req.body.name);    
-    if(error){
-        //If invalid, return 400 - bad request
-        return res.status(400).send(error.details[0].message);        
-    }
-    
-    //Update course 
-    course.name = req.body.name;
-    
-    // return the updated course to client
-    res.status(200).send(course);*/
-
 });
 
 //DELETE: Delete Object
